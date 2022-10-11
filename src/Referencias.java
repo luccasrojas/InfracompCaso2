@@ -13,6 +13,7 @@ public class Referencias extends Thread
         this.tp = tp;
     }
 
+
     public void run()
     {
         for(Integer referencia: referencias)
@@ -31,7 +32,9 @@ public class Referencias extends Thread
                 if(!tp.consultarMarcoPagina(referencia))
                 {
                     //Fallo de pagina
-                    //Envejecimiento
+                    Integer marcoSale = tp.obtenerMenorValor();
+                    tp.modifyTP(marcoSale, referencia);
+                    tp.consultarMarcoPagina(marcoSale);
                 }
                 else
                 {

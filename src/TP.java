@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 public class TP 
@@ -17,6 +19,18 @@ public class TP
         }
     }
 
+    //Getters
+    public synchronized Integer getNumeroMarcos()
+    {
+        return numeroMarcos;
+    }
+
+    public synchronized Collection<Integer> getValues()
+    {
+        return tp.values();
+    }
+
+
     //Metodo que al consultar una pagina se notifica si se encuentra en la TP o si no. Teniendo en cuenta que eso implica
     //un costo de tiempo de respuesta
     public synchronized boolean consultarMarcoPagina(Integer pagina)
@@ -35,14 +49,6 @@ public class TP
 
         if (esta)
         {
-            //Hacer el corrimiento de bits de la pagina
-            for(Integer valor: tp.values())
-            {
-                if (valor != null)
-                {
-                    valor = valor >> 1;
-                }
-            }
             //Se el suma 1 al valor consultado
             Integer value = tp.get(pagina);
             value = value + 2^N;
@@ -62,19 +68,28 @@ public class TP
         {
             e.printStackTrace();
         }
-        
-        //Hacer el corrimiento de bits de la pagina
-        for(Integer valor: tp.values())
-        {
-            if (valor != null)
-            {
-                valor = valor >> 1;
-            }
-        }
+        //Se busca la pagina que sale de la memoria
         tp.put(marcoSale, null);
         tp.put(marcoEntra, 2^N);
     }
 
+    public synchronized Integer obtenerMenorValor()
+    {
+        Integer menor = 2^N;
+        Integer pagina = null;
+        for(Integer valor: tp.values())
+        {
+            if (valor != null)
+            {
+                if (valor < menor)
+                {
+                    menor = valor;
+                    pagina = tp.get(valor);
+                }
+            }
+        }
+        return pagina;
+    }
 
 
 }
