@@ -1,10 +1,12 @@
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.CyclicBarrier;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
+
 
 // public static void main(String[] args)throws Exception 
 // 	{
@@ -42,22 +44,25 @@ public class App {
 
         //Obtener nombre archivo 
         System.out.println("Ingrese el nombre del archivo, sin el .txt, del cual se obtendran las referencias (Esta almacenado en la carpeta data): \n");
-        String archivo = scanner.nextLine();
+        Scanner scanner2 = new Scanner(System.in);
+        String archivo = scanner2.nextLine();
 
         scanner.close();
+        scanner2.close();
 
 
         try {
             //Se obtiene el archivo 
             File archivoReferencias = new File("./data/" + archivo + ".txt");
+            System.out.println("Se obtuvo el archivo: " + archivoReferencias.getName());
             Scanner scannerRef = new Scanner(archivoReferencias);
 
             //Se lee el archivo hasta que no hayan lineas de texto, que contienen la referencia 
+            int r = 0;
             while(scannerRef.hasNextLine() == true)
             {
                 //Se obtiene la referencia que se esta buscando
                 Integer referencia = Integer.parseInt(scannerRef.nextLine());
-
                 //Se agrega la referencia a un arreglo que contiene todas las referencias
                 referencias.add(referencia);
 
@@ -70,13 +75,20 @@ public class App {
             System.err.println("No se encontro el archivo");
         
         }
+        CyclicBarrier barrier = new CyclicBarrier(2);
 
-
-        Envejecimiento envejecimiento = new Envejecimiento(tlb,tp);
-        envejecimiento.start();
         
-        Referencias instancia = new Referencias(referencias,tlb,tp);
-        instancia.start(); 
+        Envejecimiento envejecimiento = new Envejecimiento(tlb,tp);
+        Referencias instancia = new Referencias(referencias,tlb,tp,barrier);
 
+        long startTime = System.nanoTime();
+        envejecimiento.start();
+        instancia.start(); 
+        //Esperar a que el thread de referencias termine
+        barrier.await();
+        envejecimiento.interrupt();
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime)/1000000-referencias.size()*2;
+        System.out.println("Tiempo de ejecucion: " + duration + " ms");
     }
 }
