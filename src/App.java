@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 public class App {
     public static void main(String[] args) throws Exception 
     {
+        
         long tiempoTraduccion = 0;
         long tiempoCarga= 0;
 

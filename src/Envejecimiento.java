@@ -5,7 +5,6 @@ public class Envejecimiento extends Thread
     private TLB tlb;
     private TP tp;
     private Integer min;
-    private Integer pageToRemove;
     public Envejecimiento (TLB tlb, TP tp)
     {
         this.tlb = tlb;
@@ -20,10 +19,8 @@ public class Envejecimiento extends Thread
             {
                 Thread.sleep(1,0);
                 this.min = 2^N;
-                this.pageToRemove = null;
                 //Hacer el corrimiento de bits de la pagina
                 tp.hacerCorrimiento();
-                tp.setPageToRemove(this.pageToRemove);
             } 
             catch (InterruptedException e) 
             {

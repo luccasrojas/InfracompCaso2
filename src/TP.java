@@ -28,12 +28,6 @@ public class TP
         return tiempoCarga;
     }
 
-    //Setters
-    public synchronized void setPageToRemove(Integer pageToRemove)
-    {
-        this.pageToRemove = pageToRemove;
-    }
-
     //Metodo que al consultar una pagina se notifica si se encuentra en la TP o si no. Teniendo en cuenta que eso implica
     //un costo de tiempo de respuesta
     public synchronized boolean consultarMarcoPagina(Integer pagina)
@@ -43,16 +37,20 @@ public class TP
         {
             //Se le suma 1 al valor consultado
             Integer value = tp.get(pagina);
+            // System.out.println(pagina+"----------------before--------"+value);
+            // imprimirTP();
             value = (int) (value + Math.pow(2,16));
             tp.put(pagina, value);
+            // System.out.println(pagina+"----------after----------"+value);
+            // imprimirTP();  
         }
         return esta;
     }
     
     public synchronized void hacerCorrimiento()
     {
-        System.out.println("Tp antes de hacer el corrimiento : \n");
-        imprimirTP();
+        // System.out.println("Tp antes de hacer el corrimiento : \n");
+        // imprimirTP();
 
         Integer valor;
         Integer min = (int) Math.pow(2,16);
@@ -71,8 +69,8 @@ public class TP
             }
         }
 
-        System.out.println("Tp despues de hacer el corrimiento: \n");
-        imprimirTP();
+        // System.out.println("Tp despues de hacer el corrimiento: \n");
+        // imprimirTP();
     }
 
     public synchronized void modifyTP(Integer marcoEntra)
@@ -82,15 +80,16 @@ public class TP
         {
             tp.put(this.pageToRemove, null);
             tp.put(marcoEntra,(int) Math.pow(2,16));
+            // System.out.println("Marco que entra: " + marcoEntra);
+            // System.out.println("Marco que sale: " + this.pageToRemove);
         }
         else
         {
             tp.put(marcoEntra, (int) Math.pow(2,16));
             numeroMarcos--;
         }
-        System.out.println("Marco que entra: " + marcoEntra);
-        System.out.println("Marco que sale: " + this.pageToRemove);
-        imprimirTP();
+        
+        // imprimirTP();
     }
     //Imprimir la TP
     public void imprimirTP()
