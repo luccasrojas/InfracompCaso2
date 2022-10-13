@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class TP 
 {
-    private static final int N = 32;
+    private static final int N = 16;
     //Attributes
     private HashMap<Integer,Integer> tp = new HashMap<Integer, Integer>();
     private Integer numeroMarcos;
@@ -15,16 +15,14 @@ public class TP
     public TP(int numeroMarcos)
     {
         this.numeroMarcos = numeroMarcos;
-        for (int i=0; i<64; i++)
+        //TODO era 64
+        for (int i=0; i<10; i++)
         {
             tp.put(i, null);
         }
     }
 
     //Getters
-    public Integer getPageToRemove() {
-        return pageToRemove;
-    }
     public synchronized long getTiempoCarga()
     {
         return tiempoCarga;
@@ -41,23 +39,11 @@ public class TP
     public synchronized boolean consultarMarcoPagina(Integer pagina)
     {
         boolean esta = tp.get(pagina) != null; 
-
-        //Tiempo de respuesta de 30ns para consultar direccion
-        try 
-        {
-            Thread.sleep(0,30);
-            tiempoCarga += 30;
-        } 
-        catch (InterruptedException e) 
-        {
-            e.printStackTrace();
-        }
-
         if (esta)
         {
-            //Se el suma 1 al valor consultado
+            //Se le suma 1 al valor consultado
             Integer value = tp.get(pagina);
-            value = value + 2^N;
+            value = (int) (value + Math.pow(2,16));
             tp.put(pagina, value);
         }
         return esta;
@@ -65,49 +51,55 @@ public class TP
     
     public synchronized void hacerCorrimiento()
     {
+        System.out.println("Tp antes de hacer el corrimiento : \n");
+        imprimirTP();
+
         Integer valor;
-        Integer min = 2^32;
-        
+        Integer min = (int) Math.pow(2,16);
         for(Integer key: this.tp.keySet())
+        {
+            valor = tp.get(key);
+            if (valor != null)
             {
-                valor = tp.get(key);
-                if (valor != null)
+                valor = valor >> 1;
+                tp.put(key, valor);
+                if(valor <= min)
                 {
-                    valor = valor >> 1;
-                    if(valor <= min)
-                    {
-                        min = valor;
-                        this.pageToRemove = key;
-                    }
+                    min = valor;
+                    this.pageToRemove = key;
                 }
             }
+        }
+
+        System.out.println("Tp despues de hacer el corrimiento: \n");
+        imprimirTP();
     }
 
-    public synchronized void modifyTP(Integer marcoSale, Integer marcoEntra)
+    public synchronized void modifyTP(Integer marcoEntra)
     {
-        //Tiempo de respuesta de 30ns para consultar direccion
-        try 
-        {
-            Thread.sleep(10,30);
-            tiempoCarga += 10000030;
-        } 
-        catch (InterruptedException e) 
-        {
-            e.printStackTrace();
-        }
         //Se busca la pagina que sale de la memoria
         if(numeroMarcos<=0)
         {
-            tp.put(marcoSale, null);
-            tp.put(marcoEntra, 2^N);
+            tp.put(this.pageToRemove, null);
+            tp.put(marcoEntra,(int) Math.pow(2,16));
         }
         else
         {
-            tp.put(marcoEntra, 2^N);
+            tp.put(marcoEntra, (int) Math.pow(2,16));
             numeroMarcos--;
-            //System.out.println("Nuemro de marcos: " + numeroMarcos);
         }
-            
+        System.out.println("Marco que entra: " + marcoEntra);
+        System.out.println("Marco que sale: " + this.pageToRemove);
+        imprimirTP();
     }
+    //Imprimir la TP
+    public void imprimirTP()
+    {
+        for(Integer key: this.tp.keySet())
+        {
+            System.out.println("Pagina: " + key + " Marco: " + tp.get(key));
+        }
+    }
+    
 
 }

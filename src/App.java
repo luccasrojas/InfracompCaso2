@@ -1,35 +1,16 @@
-import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.concurrent.CyclicBarrier;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 
-
-// public static void main(String[] args)throws Exception 
-// 	{
-// 		primos instancia = new primos();
-// 		try (InputStreamReader is = new InputStreamReader(System.in); 
-// 				BufferedReader br = new BufferedReader(is);)
-// 		{
-// 			String line = br.readLine();
-// 			int casos = Integer.parseInt(line);
-// 			line = br.readLine();
-// 			for (int i = 0; i < casos && line != null && line.length() > 0 && !"0".equals(line); i++)
-// 			{
-// 				final String[] dataStr = line.split(" ");
-// 				final int[] numeros = Arrays.stream(dataStr).mapToInt(f -> Integer.parseInt(f)).toArray();
-// 				System.out.println(instancia.euclides(numeros));
-// 				line = br.readLine();
-// 			}
-// 		}
-
-
 public class App {
     public static void main(String[] args) throws Exception 
     {
+        long tiempoTraduccion = 0;
+        long tiempoCarga= 0;
+
         ArrayList<Integer> referencias = new ArrayList<Integer>();
         Scanner scanner = new Scanner(System.in);
         
@@ -50,7 +31,6 @@ public class App {
         scanner.close();
         scanner2.close();
 
-
         try {
             //Se obtiene el archivo 
             File archivoReferencias = new File("./data/" + archivo + ".txt");
@@ -65,30 +45,56 @@ public class App {
                 Integer referencia = Integer.parseInt(scannerRef.nextLine());
                 //Se agrega la referencia a un arreglo que contiene todas las referencias
                 referencias.add(referencia);
-
             }
-
             scannerRef.close();
         }
-        catch (Exception e) {
-
+        catch (Exception e) 
+        {
             System.err.println("No se encontro el archivo");
-        
         }
-        CyclicBarrier barrier = new CyclicBarrier(2);
-
-        
+        //Se crea el hilo que se encarga de envejecer las referencias
         Envejecimiento envejecimiento = new Envejecimiento(tlb,tp);
-        Referencias instancia = new Referencias(referencias,tlb,tp,barrier);
-
-        long startTime = System.nanoTime();
         envejecimiento.start();
-        instancia.start(); 
-        //Esperar a que el thread de referencias termine
-        barrier.await();
+
+
+        //Simulacion del proceso de referencias
+        for(Integer referencia: referencias)
+        {
+            //Dormir el thread para simular clock
+            try 
+            {
+                Thread.sleep(2,0);
+            } 
+            catch (InterruptedException e) 
+            {
+                e.printStackTrace();
+            }
+            //Buscar 
+            if(!tlb.buscarEntrada(referencia))
+            {
+                if(!tp.consultarMarcoPagina(referencia))
+                {
+                    tiempoCarga+=10000000;
+                    tp.modifyTP(referencia);
+                }
+                else
+                {
+                    tiempoCarga+=30;
+                    tiempoTraduccion+=30;
+                    //Esta en RAM
+                }
+                tlb.cargarEntrada(referencia);
+            }
+            else
+            {
+                //Esta en TLB
+                tiempoTraduccion+=2;
+            }
+            
+        }
+        //Al terminar el proceso acabar con la ejecucion del hilo de envejecimiento
         envejecimiento.interrupt();
-        long endTime = System.nanoTime();
-        long duration = (endTime - startTime)/1000000-referencias.size()*2;
-        System.out.println("Tiempo de ejecucion: " + duration + " ms");
+        System.out.println("Tiempo carga: "+tiempoCarga);
+        System.out.println("Tiempo traduccion: "+tiempoTraduccion);
     }
 }

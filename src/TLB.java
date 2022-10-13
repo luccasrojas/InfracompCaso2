@@ -39,16 +39,6 @@ public class TLB
     public synchronized boolean buscarEntrada(Integer entrada)
     {
         //Se consulta si la pagina esta en el TLB al acceder al valor del hash
-        boolean esta = paginasTlb.containsValue(entrada);   
-        if (esta)
-        {
-            //Tiempo de respuesta de 2ns para consultar direccion que esta en la TLB
-            try {
-                Thread.sleep(0,2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
         return paginasTlb.containsValue(entrada);
     }
 
