@@ -4,7 +4,6 @@ public class Envejecimiento extends Thread
     //this.contadorEnvejecimiento = this.contadorEnvejecimiento >> 1;
     private TLB tlb;
     private TP tp;
-    private Integer min;
     public Envejecimiento (TLB tlb, TP tp)
     {
         this.tlb = tlb;
@@ -18,7 +17,6 @@ public class Envejecimiento extends Thread
             try 
             {
                 Thread.sleep(1,0);
-                this.min = 2^N;
                 //Hacer el corrimiento de bits de la pagina
                 tp.hacerCorrimiento();
             } 

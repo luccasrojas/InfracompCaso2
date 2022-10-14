@@ -57,7 +57,7 @@ public class App {
         Envejecimiento envejecimiento = new Envejecimiento(tlb,tp);
         envejecimiento.start();
 
-
+        Integer numFallosPagina=0;
         //Simulacion del proceso de referencias
         for(Integer referencia: referencias)
         {
@@ -70,13 +70,20 @@ public class App {
             {
                 e.printStackTrace();
             }
-            //Buscar 
+            //Buscar
+            boolean estaEnTP = tp.consultarMarcoPagina(referencia);
             if(!tlb.buscarEntrada(referencia))
             {
-                if(!tp.consultarMarcoPagina(referencia))
+                if(!estaEnTP)
                 {
+                    tiempoTraduccion+=60;
                     tiempoCarga+=10000000;
-                    tp.modifyTP(referencia);
+                    numFallosPagina++;
+                    Integer paginaSale = tp.modifyTP(referencia);
+                    if (tlb.buscarEntrada(paginaSale))
+                    {
+                        tlb.deleteFromTLB(paginaSale);
+                    } 
                 }
                 else
                 {
@@ -97,5 +104,6 @@ public class App {
         envejecimiento.interrupt();
         System.out.println("Tiempo carga: "+tiempoCarga);
         System.out.println("Tiempo traduccion: "+tiempoTraduccion);
+        System.out.println("Numero de fallos de pagina: "+ numFallosPagina);
     }
 }
