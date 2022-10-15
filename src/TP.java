@@ -60,7 +60,7 @@ public class TP
             valor = tp.get(key);
             if (valor != null)
             {
-                valor = valor >> 1;
+                valor = valor >>> 1;
                 tp.put(key, valor);
                 if(valor <= min)
                 {
