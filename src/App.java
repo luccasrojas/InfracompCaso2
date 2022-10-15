@@ -58,9 +58,12 @@ public class App {
         envejecimiento.start();
 
         Integer numFallosPagina=0;
+        Integer referenciasEvaluadas=0;
         //Simulacion del proceso de referencias
         for(Integer referencia: referencias)
         {
+            String diagnostico = "";
+
             //Dormir el thread para simular clock
             try 
             {
@@ -72,6 +75,8 @@ public class App {
             }
             //Buscar
             boolean estaEnTP = tp.consultarMarcoPagina(referencia);
+            referenciasEvaluadas++;
+            diagnostico += "Num Ref" +referenciasEvaluadas+"Referencia: " + referencia + " ";
             if(!tlb.buscarEntrada(referencia))
             {
                 if(!estaEnTP)
@@ -79,8 +84,13 @@ public class App {
                     tiempoTraduccion+=60;
                     tiempoCarga+=10000000;
                     numFallosPagina++;
+                    if(referenciasEvaluadas == 165)
+                    {
+                        System.out.println("Referencia: " + referencia + " ");
+                    }
                     Integer paginaSale = tp.modifyTP(referencia);
-                    if (tlb.buscarEntrada(paginaSale))
+                    diagnostico += "Fallo de pagina, pagina que sale: " + paginaSale + " ";
+                    if (paginaSale != null && tlb.buscarEntrada(paginaSale))
                     {
                         tlb.deleteFromTLB(paginaSale);
                     } 
@@ -89,6 +99,7 @@ public class App {
                 {
                     tiempoCarga+=30;
                     tiempoTraduccion+=30;
+                    diagnostico += "No hay fallo de pagina ";
                     //Esta en RAM
                 }
                 tlb.cargarEntrada(referencia);
@@ -98,6 +109,8 @@ public class App {
                 //Esta en TLB
                 tiempoTraduccion+=2;
             }
+
+            //8System.out.println(diagnostico);
             
         }
         //Al terminar el proceso acabar con la ejecucion del hilo de envejecimiento

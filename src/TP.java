@@ -52,7 +52,7 @@ public class TP
     {
         // System.out.println("Tp antes de hacer el corrimiento : \n");
         // imprimirTP();
-
+        ArrayList<Integer> minimos = new ArrayList<Integer>();
         Long valor;
         Long min = (long) Math.pow(2,N);
         for(Integer key: this.tp.keySet())
@@ -65,11 +65,28 @@ public class TP
                 if(valor <= min)
                 {
                     min = valor;
-                    this.pageToRemove = key;
+                   //this.pageToRemove = key;
                 }
             }
         }
 
+        for(Integer key: this.tp.keySet())
+        {
+            valor = tp.get(key);
+            if (valor != null)
+            {
+                if(valor == min)
+                {
+                    minimos.add(key);
+                }
+            }
+        }
+        //ontener aleatoriamente un valor de la lista de minimos
+        if (minimos.size() > 0)
+        {
+            int randomIndex = (int) (Math.random() * minimos.size());
+            this.pageToRemove = minimos.get(randomIndex);
+        }
         // System.out.println("Tp despues de hacer el corrimiento: \n");
         // imprimirTP();
     }
@@ -81,6 +98,7 @@ public class TP
         {
             tp.put(this.pageToRemove, null);
             tp.put(marcoEntra,(long) Math.pow(2,N));
+            return this.pageToRemove;
             // System.out.println("Marco que entra: " + marcoEntra);
             // System.out.println("Marco que sale: " + this.pageToRemove);
         }
@@ -88,9 +106,10 @@ public class TP
         {
             tp.put(marcoEntra, (long) Math.pow(2,N));
             numeroMarcos--;
+            return null;
         }
         // imprimirTP();
-        return this.pageToRemove;
+        
     }
     //Imprimir la TP
     public void imprimirTP()
@@ -101,6 +120,4 @@ public class TP
         }
         System.out.println("------------------------------------------------");
     }
-    
-
 }

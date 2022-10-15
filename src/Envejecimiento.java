@@ -12,6 +12,7 @@ public class Envejecimiento extends Thread
 
     public void run()
     {
+        int veces = 0;
         while(true)
         {
             try 
@@ -19,9 +20,11 @@ public class Envejecimiento extends Thread
                 Thread.sleep(1,0);
                 //Hacer el corrimiento de bits de la pagina
                 tp.hacerCorrimiento();
+                veces++;
             } 
             catch (InterruptedException e) 
             {
+                //System.out.println("Veces que se ha hecho el corrimiento: "+veces);
                 break;
             } 
         }
