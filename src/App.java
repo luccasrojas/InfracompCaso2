@@ -1,17 +1,26 @@
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.InputStreamReader;
+
+/* Caso 2 de infraestructura computacional ISIS-2203
+Autores: 
+- Andres Arevalo Fajardo 201923853
+- Alejandro Salgado 201923134
+- Luccas Rojas 201923052
+Este caso se compone de 4 clases, 2 Threads, el main y el de envejecimiento y 2 clases como monitores, 
+la TLB y la TP.
+
+App-> Clase principal, se encarga de leer el archivo de entrada, crear el hilo de envejecimiento, traducir y cargar
+      las referencias dependiendo de su localizacion bien sea en la TLB, RAM o ROM y dar el resultado final.
+*/
 
 public class App {
     public static void main(String[] args) throws Exception 
     {
-        
+        //Inicializacion de ambos contadores temporales
         long tiempoTraduccion = 0;
         long tiempoCarga= 0;
-
+        //Lista de referencias para ser procesada 
         ArrayList<Integer> referencias = new ArrayList<Integer>();
         Scanner scanner = new Scanner(System.in);
         
@@ -19,8 +28,10 @@ public class App {
         //Lectura Entradas TLB y Marcos de Pagina RAM
         System.out.println("Ingrese el número de entradas de la TLB:");
         int tlbEntradas = scanner.nextInt();
+
         System.out.println("Ingrese el número de marcos de pagina de la RAM:");
         int tabla = scanner.nextInt();
+        //Creacion de la TLB y la TP a partir de sus respectivos tamanios, en el caso de la TP, el tamanio de la RAM
         TLB tlb = new TLB(tlbEntradas);
         TP tp = new TP(tabla);
 
@@ -39,7 +50,6 @@ public class App {
             Scanner scannerRef = new Scanner(archivoReferencias);
 
             //Se lee el archivo hasta que no hayan lineas de texto, que contienen la referencia 
-            int r = 0;
             while(scannerRef.hasNextLine() == true)
             {
                 //Se obtiene la referencia que se esta buscando
@@ -53,18 +63,15 @@ public class App {
         {
             System.err.println("No se encontro el archivo");
         }
+
         //Se crea el hilo que se encarga de envejecer las referencias
-        Envejecimiento envejecimiento = new Envejecimiento(tlb,tp);
+        Envejecimiento envejecimiento = new Envejecimiento(tp);
         envejecimiento.start();
 
-        Integer numFallosPagina=0;
-        Integer referenciasEvaluadas=0;
         //Simulacion del proceso de referencias
         for(Integer referencia: referencias)
         {
-            String diagnostico = "";
-
-            //Dormir el thread para simular clock
+            //Dormir el thread para simular clock de 2 ms
             try 
             {
                 Thread.sleep(2,0);
@@ -73,50 +80,47 @@ public class App {
             {
                 e.printStackTrace();
             }
-            //Buscar
-            boolean estaEnTP = tp.consultarMarcoPagina(referencia);
-            referenciasEvaluadas++;
-            diagnostico += "Num Ref" +referenciasEvaluadas+"Referencia: " + referencia + " ";
+
+            //Algoritmo de traduccion de direcciones
+            boolean estaEnRAM = tp.consultarMarcoPagina(referencia);
             if(!tlb.buscarEntrada(referencia))
             {
-                if(!estaEnTP)
+                //La referencia no esta en la TLB
+                if(!estaEnRAM)
                 {
+                    //La referencia no esta en la RAM -> Fallo de pagina
                     tiempoTraduccion+=60;
                     tiempoCarga+=10000000;
-                    numFallosPagina++;
-                    if(referenciasEvaluadas == 165)
-                    {
-                        System.out.println("Referencia: " + referencia + " ");
-                    }
+                    //Se agrega la referencia a la TLB y saca la referencia segun el algorimto de envejecimiento
                     Integer paginaSale = tp.modifyTP(referencia);
-                    diagnostico += "Fallo de pagina, pagina que sale: " + paginaSale + " ";
                     if (paginaSale != null && tlb.buscarEntrada(paginaSale))
                     {
+                        //Se saca la referencia de la TLB si la referencia que sale de la TP se encontraba en la TLB
                         tlb.deleteFromTLB(paginaSale);
                     } 
                 }
                 else
                 {
+                    //La referencia esta en la RAM
                     tiempoCarga+=30;
                     tiempoTraduccion+=30;
-                    diagnostico += "No hay fallo de pagina ";
                     //Esta en RAM
                 }
+                //Se simula la carga para el algoritmo de envejecimiento
                 tlb.cargarEntrada(referencia);
             }
             else
             {
-                //Esta en TLB
+                //Esta en TLB y en RAM
                 tiempoTraduccion+=2;
-            }
-
-            //8System.out.println(diagnostico);
-            
+            }            
         }
-        //Al terminar el proceso acabar con la ejecucion del hilo de envejecimiento
+
+        //Al terminar el proceso se debe acabar con la ejecucion del hilo de envejecimiento
         envejecimiento.interrupt();
+        //Salida del programa con tiempos registrados
+        System.out.println("La carga de referencias fue exitosa \n");
         System.out.println("Tiempo carga: "+tiempoCarga);
         System.out.println("Tiempo traduccion: "+tiempoTraduccion);
-        System.out.println("Numero de fallos de pagina: "+ numFallosPagina);
     }
 }

@@ -1,30 +1,29 @@
 public class Envejecimiento extends Thread
 {
-    private static final int N = 16;
-    //this.contadorEnvejecimiento = this.contadorEnvejecimiento >> 1;
-    private TLB tlb;
+    /* Clase de envejecimiento de las referencias que estan en RAM, se encarga de cada 1ms actualizar en la 
+       TP todas las referencias que se encuentran en RAM, haciendo el debido corrimiento de bits por cada iteracion
+    */
     private TP tp;
-    public Envejecimiento (TLB tlb, TP tp)
+    //Constructor recibe la TP
+    public Envejecimiento ( TP tp)
     {
-        this.tlb = tlb;
         this.tp = tp;
     }
 
     public void run()
     {
-        int veces = 0;
         while(true)
         {
+            //Dormir el thread para simular clock de 1 ms
             try 
             {
                 Thread.sleep(1,0);
-                //Hacer el corrimiento de bits de la pagina
+                //Hacer el corrimiento de bits de las paginas de forma sincronizada sobre la TP
                 tp.hacerCorrimiento();
-                veces++;
             } 
             catch (InterruptedException e) 
             {
-                //System.out.println("Veces que se ha hecho el corrimiento: "+veces);
+                //Finalizar la ejecucion del thread cuando se interrumpe al acabar con todas las referencias
                 break;
             } 
         }
