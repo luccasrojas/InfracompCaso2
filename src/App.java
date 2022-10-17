@@ -112,6 +112,7 @@ public class App {
             else
             {
                 //Esta en TLB y en RAM
+                tiempoCarga+=30;
                 tiempoTraduccion+=2;
             }            
         }
